@@ -2,8 +2,8 @@
 
 <%
     // Force the browser to never cache the login page
-    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); 
-    response.setHeader("Pragma", "no-cache"); 
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
     response.setDateHeader("Expires", 0);
 %>
 <!DOCTYPE html>
@@ -21,7 +21,7 @@
                 margin: 0;
                 background-color: #f4f7f6;
             }
-            
+
             /* Thin top header */
             .top-header {
                 background-color: #800000;
@@ -32,7 +32,7 @@
                 letter-spacing: 1px;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
-            
+
             /* Login form area */
             .main-content {
                 flex: 1; /* Main content expands to push footer down */
@@ -114,7 +114,7 @@
             .btn-blue:hover {
                 background-color: #5c0000;
             }
-            
+
             /* Error message styling */
             .error-message {
                 background-color: #f8d7da;
@@ -129,7 +129,7 @@
         </style>
     </head>
     <body>
-        
+
         <div class="top-header" style="font-family:times new roman;">
             Welcome to UniVents: Students Program Registration System
         </div>
@@ -143,26 +143,26 @@
             <div class="login-wrapper">
 
                 <% if ("invalid".equals(request.getParameter("error"))) { %>
-                    <div class="error-message">
-                        <i class="fas fa-exclamation-circle"></i> Invalid Email or Password!
-                    </div>
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i> Invalid Email or Password!
+                </div>
                 <% } %>
                 <% if ("unauthorized".equals(request.getParameter("error"))) { %>
-                    <div class="error-message">
-                        <i class="fas fa-lock"></i> You must login to access that page.
-                    </div>
+                <div class="error-message">
+                    <i class="fas fa-lock"></i> You must login to access that page.
+                </div>
                 <% }%>
 
                 <form action="LoginServlet" method="POST" autocomplete="off">
                     <div class="form-group">
                         <label>Email Address</label>
-                        <input type="email" name="email" placeholder="Enter your email" required readonly onfocus="this.removeAttribute('readonly');">
+                        <input type="email" name="email" placeholder="Enter your email" required>
                     </div>
 
                     <div class="form-group">
                         <label>Password</label>
                         <div class="password-wrapper">
-                            <input type="password" name="password" id="passwordInput" placeholder="Enter your password" required readonly onfocus="this.removeAttribute('readonly');">
+                            <input type="password" name="password" id="passwordInput" placeholder="Enter your password" required>
                             <i class="fas fa-eye toggle-password" id="eyeIcon" onclick="togglePassword()" title="Show/Hide Password"></i>
                         </div>
                     </div>
@@ -180,7 +180,7 @@
             function togglePassword() {
                 var pwdInput = document.getElementById("passwordInput");
                 var eyeIcon = document.getElementById("eyeIcon");
-                
+
                 if (pwdInput.type === "password") {
                     pwdInput.type = "text";
                     eyeIcon.classList.remove("fa-eye");
