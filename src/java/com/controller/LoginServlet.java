@@ -11,7 +11,6 @@ import javax.servlet.http.HttpSession;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/LoginServlet"})
 public class LoginServlet extends HttpServlet {
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String email = request.getParameter("email");
@@ -25,15 +24,7 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("userRole", authData[0]);
             session.setAttribute("userId", authData[1]); 
             session.setAttribute("userName", authData[2]);
-
-            // Route based on role
-            if (authData[0].equals("COMMITTEE")) {
-                response.sendRedirect("home.jsp"); // Changed to redirect everyone to the dashboard first
-            } else if (authData[0].equals("ADVISOR")) {
-                response.sendRedirect("home.jsp");
-            } else {
-                response.sendRedirect("home.jsp");
-            }
+            response.sendRedirect("home.jsp");
         } else {
             response.sendRedirect("login.jsp?error=invalid");
         }
