@@ -7,18 +7,16 @@ import java.sql.SQLException;
 public class DBConnection {
 
     public static Connection getConnection() throws SQLException, ClassNotFoundException {
-        // Check for an environment variable named 'DB_ENV'
-        // If set to 'CLOUD', use cloud credentials. Otherwise, default to 'LOCAL'.
         String env = System.getenv("DB_ENV");
-        
         String url, user, password;
 
         if ("CLOUD".equals(env)) {
-            url = "jdbc:mysql://gateway01.ap-southeast-1.prod.alicloud.tidbcloud.com:4000/univents_db?sslMode=VERIFY_IDENTITY&enabledTLSProtocols=TLSv1.2,TLSv1.3";
-            user = "3sNVncAC2rNdtBK.root";
-            password = "lU2LDysFrsekg5eZ";
+            // Mengambil nilai daripada Environment Variables (Render)
+            url = System.getenv("DB_URL");
+            user = System.getenv("DB_USER");
+            password = System.getenv("DB_PASS");
         } else {
-            // Local fallback
+            // Local fallback (kekalkan untuk kegunaan laptop anda)
             url = "jdbc:mysql://localhost:3306/univents_db";
             user = "root";
             password = "admin";
