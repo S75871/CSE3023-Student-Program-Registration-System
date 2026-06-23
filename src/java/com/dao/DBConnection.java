@@ -14,7 +14,7 @@ public class DBConnection {
         String url, user, password;
 
         if ("CLOUD".equals(env)) {
-            url = "jdbc:mysql://gateway01.ap-southeast-1.prod.alicloud.tidbcloud.com:4000/sys?sslMode=VERIFY_IDENTITY&enabledTLSProtocols=TLSv1.2,TLSv1.3";
+            url = "jdbc:mysql://gateway01.ap-southeast-1.prod.alicloud.tidbcloud.com:4000/univents_db?sslMode=VERIFY_IDENTITY&enabledTLSProtocols=TLSv1.2,TLSv1.3";
             user = "3sNVncAC2rNdtBK.root";
             password = "lU2LDysFrsekg5eZ";
         } else {
