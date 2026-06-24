@@ -16,6 +16,11 @@ public class LoginServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
+        
+        System.out.println("DEBUG CLOUD: Email diterima: " + email);
+    System.out.println("DEBUG CLOUD: Password diterima: " + password);
+    
+    
         UserDAO dao = new UserDAO();
         String[] authData = dao.authenticateUser(email, password);
 
