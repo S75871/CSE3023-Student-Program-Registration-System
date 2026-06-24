@@ -128,42 +128,46 @@ public class UserDAO {
     public String[] authenticateUser(String email, String password) {
         try (Connection conn = DBConnection.getConnection()) {
 
-            // 1. Check if user is a Committee Member
+            String cleanEmail = email.trim();
+            String cleanPass = password.trim();
+
+            // 1. Check Committee 
             String sqlCmd = "SELECT committeeID, name FROM ClubCommittee WHERE email=? AND password=?";
             try (PreparedStatement ps = conn.prepareStatement(sqlCmd)) {
-                ps.setString(1, email);
-                ps.setString(2, password);
+                ps.setString(1, cleanEmail);
+                ps.setString(2, cleanPass);
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     return new String[]{"COMMITTEE", rs.getString("committeeID"), rs.getString("name")};
                 }
             }
 
-            // 2. Check if user is an Advisor
+            // 2. Check Advisor 
             String sqlAdv = "SELECT advisorID, name FROM ClubAdvisor WHERE email=? AND password=?";
             try (PreparedStatement ps = conn.prepareStatement(sqlAdv)) {
-                ps.setString(1, email);
-                ps.setString(2, password);
+                ps.setString(1, cleanEmail);
+                ps.setString(2, cleanPass);
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     return new String[]{"ADVISOR", rs.getString("advisorID"), rs.getString("name")};
                 }
             }
 
-            // 3. Check if user is a Standard Member
+            // 3. Check Member 
             String sqlMem = "SELECT memberID, name FROM ClubMember WHERE email=? AND password=?";
             try (PreparedStatement ps = conn.prepareStatement(sqlMem)) {
-                ps.setString(1, email);
-                ps.setString(2, password);
+                ps.setString(1, cleanEmail);
+                ps.setString(2, cleanPass);
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     return new String[]{"MEMBER", rs.getString("memberID"), rs.getString("name")};
                 }
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null; // Return null if credentials don't match any table
+        return null;
     }
 
     /* ==========================================================
