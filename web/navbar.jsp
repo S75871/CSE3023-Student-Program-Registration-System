@@ -19,6 +19,7 @@
             <a href="MemberServlet">Manage Members</a>
             <a href="EventServlet?action=advisorReservations">Reservations</a> 
             <a href="ReportFeedbackServlet?action=viewAll">Feedback</a>
+            <a href="generateReportForm.jsp">Reports</a>
             
 
         <% } else if ("COMMITTEE".equals(navRole)) { %>

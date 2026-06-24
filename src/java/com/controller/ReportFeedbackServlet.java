@@ -66,7 +66,7 @@ public class ReportFeedbackServlet extends HttpServlet {
                 row.put("comment", rs.getString("comment"));
                 row.put("memberID", rs.getString("memberID"));
 
-                row.put("memberName", rs.getString("memberName")); 
+                row.put("memberName", rs.getString("memberName"));
                 row.put("submissionDate", rs.getDate("submissionDate"));
 
                 PreparedStatement st2 = conn.prepareStatement("SELECT COUNT(*) FROM feedback_replies WHERE feedbackID = ?");
@@ -136,7 +136,62 @@ public class ReportFeedbackServlet extends HttpServlet {
     }
 
     private void generateReport(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String month = request.getParameter("month");
+        String year = request.getParameter("year");
+        String viewMode = request.getParameter("viewMode");
+
+        List<Map<String, Object>> reportData = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection()) {
+            // Query to get event stats, attendance, and average ratings
+            String sql = "SELECT e.eventName, e.eventDate, e.venue, e.startTime as time, "
+            + "'N/A' as category, 'N/A' as level, " // Placeholder since these columns don't exist
+            + "e.capacity as totalPart, COUNT(r.registrationID) as actualPart, " // Changed registrationID and capacity
+            + "AVG(f.rating) as avgScore "
+            + "FROM club_event e "
+            + "LEFT JOIN event_registration r ON e.eventID = r.eventID "
+            + "LEFT JOIN feedback f ON e.eventID = f.eventID "
+            + "WHERE MONTH(e.eventDate) = ? AND YEAR(e.eventDate) = ? "
+            + "GROUP BY e.eventID";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, month);
+            ps.setString(2, year);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                int totalPart = rs.getInt("totalPart");
+                int actualPart = rs.getInt("actualPart");
+                double avgScore = rs.getDouble("avgScore");
+
+                row.put("eventName", rs.getString("eventName"));
+                row.put("eventDate", rs.getDate("eventDate"));
+                row.put("venue", rs.getString("venue"));
+                row.put("time", rs.getString("time"));
+                row.put("category", rs.getString("category"));
+                row.put("level", rs.getString("level"));
+                row.put("totalPart", totalPart);
+                row.put("actualPart", actualPart);
+                row.put("attendanceRate", (totalPart > 0) ? ((double) actualPart / totalPart) * 100 : 0);
+                row.put("avgScore", avgScore);
+
+                reportData.add(row);
+            }
+        }
+
+        request.setAttribute("reportData", reportData);
+        request.setAttribute("viewMode", viewMode);
+        request.setAttribute("selectedMonthName", getMonthName(month));
+        request.setAttribute("selectedYear", year);
         request.getRequestDispatcher("viewReport.jsp").forward(request, response);
+    }
+
+    // Helper method to convert "01" to "January"
+    private String getMonthName(String month) {
+        String[] months = {"", "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"};
+        return months[Integer.parseInt(month)];
     }
 
     @Override

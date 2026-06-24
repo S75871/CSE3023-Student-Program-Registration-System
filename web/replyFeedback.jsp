@@ -77,20 +77,21 @@
                     String feedbackID = request.getParameter("feedbackID");
                     String eventName = "N/A";
                     String originalComment = "N/A";
+                    String memberID = "N/A"; // Variable for User ID
 
                     // Tarik butiran komen dari database berdasarkan feedbackID
                     if (feedbackID != null) {
-                        try (Connection conn = DBConnection.getConnection();
-                             PreparedStatement ps = conn.prepareStatement(
-                                 "SELECT f.comment, e.eventName FROM feedback f " +
-                                 "JOIN club_event e ON f.eventID = e.eventID " +
-                                 "WHERE f.feedbackID = ?")) {
-                            
+                        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(
+                                "SELECT f.comment, e.eventName, f.memberID FROM feedback f "
+                                + "JOIN club_event e ON f.eventID = e.eventID "
+                                + "WHERE f.feedbackID = ?")) {
+
                             ps.setString(1, feedbackID);
                             ResultSet rs = ps.executeQuery();
                             if (rs.next()) {
                                 eventName = rs.getString("eventName");
                                 originalComment = rs.getString("comment");
+                                memberID = rs.getString("memberID");
                             }
                         } catch (Exception e) {
                             out.println("");
@@ -99,22 +100,24 @@
                 %>
 
                 <div class="form-container">
-                    
+
                     <div class="feedback-details">
-                        <p><strong>Feedback ID:</strong> #<%= feedbackID %></p>
-                        <p><strong>Event:</strong> <%= eventName %></p>
-                        <p><strong>User's Comment:</strong> <em>"<%= originalComment %>"</em></p>
+                        <p><strong>Feedback ID:</strong> #<%= feedbackID%></p>
+                        <p><strong>Submitted by (User ID):</strong> <%= memberID %></p>
+                        <p><strong>Event:</strong> <%= eventName%></p>
+                        <p><strong>User's Comment:</strong> <em>"<%= originalComment%>"</em></p>
                     </div>
 
                     <form action="ReportFeedbackServlet" method="POST">
                         <input type="hidden" name="action" value="replyFeedback">
-                        <input type="hidden" name="feedbackID" value="<%= feedbackID %>">
-                        
+                        <input type="hidden" name="feedbackID" value="<%= feedbackID%>">
+                        <input type="hidden" name="memberID" value="<%= memberID %>">
+
                         <div class="form-group">
                             <label for="replyText">Your Reply Message:</label>
                             <textarea name="replyText" id="replyText" placeholder="Type your response to the user here..." required></textarea>
                         </div>
-                        
+
                         <button type="submit" class="btn-submit">Send Reply</button>
                         <a href="ReportFeedbackServlet?action=viewAll" class="btn-cancel">Cancel</a>
                     </form>
@@ -122,7 +125,7 @@
 
             </div>
         </div>
-        
+
         <jsp:include page="footer.jsp" />
     </body>
 </html>

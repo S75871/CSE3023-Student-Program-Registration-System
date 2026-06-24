@@ -413,7 +413,14 @@ th {
     font-size: 0.8em;
     font-weight: bold;
 }
+/* Progress Bar Styling */
+.seat-progress { margin: 15px 0; font-size: 0.9em; }
+.progress-bar { width: 100%; background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden; margin-top: 5px; }
+.progress-fill { background: #28a745; height: 100%; transition: width 0.5s ease-in-out; }
 
+/* Past Events Styling */
+.past-events { opacity: 0.6; filter: grayscale(100%); }
+.event-card.past { background: #f9f9f9; border: 1px solid #ddd; }
 /* =========================================
    8. MODALS, POPUPS & TOASTS
    ========================================= */

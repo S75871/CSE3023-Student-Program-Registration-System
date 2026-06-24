@@ -98,23 +98,39 @@
                                 <td><%= comment%></td>
                                 <td><%= f.get("submissionDate")%></td>
                                 <td>
+                                    <%-- ACCESS CONTROL: Check user role and feedback ownership --%>
+
+                                    <%-- MEMBER (OWNER) ACCESS: Allows original author to update, delete, or participate in the thread --%>
                                     <% if ("MEMBER".equals(role) && userId.equals(ownerID)) {%>
                                     <a href="updateFeedback.jsp?id=<%= feedbackID%>" class="btn-update">Update</a>
                                     <a href="ReportFeedbackServlet?action=delete&id=<%= feedbackID%>" class="btn-delete" onclick="return confirm('Delete?')">Delete</a>
 
+                                    <%-- Member can view discussion thread and reply to comments --%>
+                                    <a href="ReportFeedbackServlet?action=viewReplies&feedbackID=<%= feedbackID%>" class="btn-reply">
+                                        View Replies (<%= replyCount%>)
+                                    </a>
+                                    <a href="replyFeedback.jsp?feedbackID=<%= feedbackID%>" class="btn-fee">Reply</a>
+
+                                    <%-- COMMITTEE/ADVISOR ACCESS: Administrative privileges to moderate, reply, and remove inappropriate content --%>
                                     <% } else if ("COMMITTEE".equals(role) || "ADVISOR".equals(role)) {%>
                                     <a href="replyFeedback.jsp?feedbackID=<%= feedbackID%>" class="btn-reply">Reply</a>
 
-                                    <a href="ReportFeedbackServlet?action=viewReplies&feedbackID=<%= feedbackID%>"class="btn-reply">
+                                    <%-- Admins can monitor conversation threads and moderate feedback --%>
+                                    <a href="ReportFeedbackServlet?action=viewReplies&feedbackID=<%= feedbackID%>" class="btn-reply">
                                         View Replies (<%= replyCount%>)
                                     </a>
+                                    <a href="ReportFeedbackServlet?action=delete&id=<%= feedbackID%>" class="btn-delete" onclick="return confirm('Are you sure you want to delete this feedback?')">Delete</a>
 
-                                    <a href="ReportFeedbackServlet?action=delete&id=<%= feedbackID%>" class="btn-delete" onclick="return confirm('Padam feedback ini?')">Delete</a>
+                                    <%-- STANDARD MEMBER ACCESS: Allows other members to view thread transparency --%>
+                                    <% } else if ("MEMBER".equals(role)) {%>
+                                    <a href="ReportFeedbackServlet?action=viewReplies&feedbackID=<%= feedbackID%>" class="btn-reply">
+                                        View Replies (<%= replyCount%>)
+                                    </a>
                                     <% } %>
                                 </td>
                             </tr>
                             <% }
-                            }%>
+                                }%>
                         </tbody>
                     </table>
                 </div>

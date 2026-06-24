@@ -1,14 +1,14 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.List, com.model.Event"%>
+<%@page import="java.util.List, com.model.Event, java.util.Date"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%
-    // Security Check: Only allow members
     String role = (String) session.getAttribute("userRole");
     if (!"MEMBER".equals(role)) {
         response.sendRedirect("login.jsp");
         return;
     }
     SimpleDateFormat timeFormatter = new SimpleDateFormat("hh:mm a");
+    Date today = new Date();
 %>
 
 <!DOCTYPE html>
@@ -16,46 +16,82 @@
     <head>
         <title>UniVents - Browse Events</title>
         <link rel="stylesheet" type="text/css" href="style.css">
+        <style>
+            .event-catalog {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 25px;
+                padding: 20px;
+            }
+
+            .event-card {
+                width: 320px;
+                background: #fff;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+                transition: transform 0.3s ease;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .event-card:hover {
+                transform: translateY(-5px);
+            }
+
+            .seat-progress {
+                margin: 15px 0;
+            }
+            .progress-bar {
+                height: 8px;
+                background: #eee;
+                border-radius: 4px;
+            }
+            .progress-fill {
+                height: 100%;
+                background: #28a745;
+                border-radius: 4px;
+            }
+
+            .past-events .event-card {
+                background: #f0f0f0; /* Kelabu muda untuk event lepas */
+                filter: grayscale(1);
+            }
+        </style>
     </head>
     <body>
         <jsp:include page="navbar.jsp" />
 
         <div class="main-content">
             <h1 class="page-title">Upcoming UniVents Events</h1>
-            <p style="margin: 0 50px 20px; color: #666;">Browse and reserve your seat for upcoming workshops and activities.</p>
 
-            <%-- Success/Error Messages from URL parameters --%>
-            <% if ("rsvp_success".equals(request.getParameter("msg"))) { %>
-            <div class="alert success"><strong>Success!</strong> Your reservation has been confirmed.</div>
-            <% } else if ("already_registered".equals(request.getParameter("error"))) { %>
-            <div class="alert error"><strong>Oops!</strong> You are already registered for this event.</div>
-            <% } %>
-
+            <%-- SEKSYEN: UPCOMING EVENTS --%>
             <div class="event-catalog">
                 <%
                     List<Event> events = (List<Event>) request.getAttribute("availableEvents");
-                    if (events != null && !events.isEmpty()) {
+                    boolean hasUpcoming = false;
+                    if (events != null) {
                         for (Event e : events) {
-                            String timeString = (e.getStartTime() != null && e.getEndTime() != null)
-                                    ? timeFormatter.format(e.getStartTime()) + " - " + timeFormatter.format(e.getEndTime())
-                                    : "TBA";
+                            if (e.getEventDate() != null && e.getEventDate().after(today)) {
+                                hasUpcoming = true;
+                                int registered = e.getRegisteredCount();
+                                int capacity = e.getCapacity();
+                                int available = capacity - registered;
+                                int percentage = (capacity > 0) ? (registered * 100 / capacity) : 100;
                 %>
                 <div class="event-card">
-                    <div class="event-header">
-                        <h3><%= e.getEventName()%></h3>
+                    <h3><%= e.getEventName()%></h3>
+                    <p><strong>📅 Date:</strong> <%= e.getEventDate()%></p>
+                    <p><strong>📍 Venue:</strong> <%= e.getVenue()%></p>
+
+                    <%-- Seat Counter Progress Bar --%>
+                    <div class="seat-progress">
+                        <small>Seats Taken: <%= registered%> / <%= capacity%></small>
+                        <div class="progress-bar"><div class="progress-fill" style="width: <%= percentage%>%"></div></div>
                     </div>
-                    <div class="event-body">
-                        <p><strong>📅 Date:</strong> <%= e.getEventDate()%></p>
-                        <p><strong>⏰ Time:</strong> <%= timeString%></p>
-                        <p><strong>📍 Venue:</strong> <%= e.getVenue()%></p>
-                        <hr>
-                        <p><%= e.getDescription() != null ? e.getDescription() : "No details provided."%></p>
-                    </div>
+
                     <div class="event-footer">
-                        <%
-                            int available = e.getCapacity() - e.getRegisteredCount();
-                            if (available > 0) {
-                        %>
+                        <% if (available > 0) {%>
                         <form action="EventServlet" method="POST">
                             <input type="hidden" name="action" value="rsvp">
                             <input type="hidden" name="eventID" value="<%= e.getEventID()%>">
@@ -67,41 +103,34 @@
                     </div>
                 </div>
                 <%      }
-                } else { %>
-                <h3 style="text-align:center; color:#888;">No upcoming events at this time.</h3>
+                        }
+                    }
+                    if (!hasUpcoming) { %>
+                <p style="text-align:center;">No upcoming events at this time.</p>
                 <% } %>
+            </div>
+
+            <hr style="margin: 50px 0;">
+
+            <%-- SEKSYEN: PAST EVENTS --%>
+            <h2 class="page-title">Past Events</h2>
+            <div class="event-catalog past-events">
+                <%
+                    if (events != null) {
+                        for (Event e : events) {
+                            if (e.getEventDate() != null && e.getEventDate().before(today)) {
+                %>
+                <div class="event-card past">
+                    <h3><%= e.getEventName()%></h3>
+                    <p>Date: <%= e.getEventDate()%></p>
+                    <button class="btn btn-gray" disabled>Completed</button>
+                </div>
+                <%      }
+                        }
+                    }%>
             </div>
         </div>
 
-        <%-- OVERLAP POPUP TRIGGER LOGIC --%>
-        <% if ("true".equals(session.getAttribute("showPopup"))) { %>
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                // This forces your popup.jsp to trigger
-                var toast = document.getElementById("toastBox");
-                if (toast) {
-                    toast.style.display = 'block';
-                    toast.classList.add("show");
-                    setTimeout(function () {
-                        toast.style.display = 'none';
-                    }, 5000);
-                }
-            });
-        </script>
-        <% session.removeAttribute("showPopup"); %>
-        <% } %>
-
-        <div id="popup-container">
-            <%
-                try {
-            %>
-            <jsp:include page="popup.jsp" />
-            <%
-                } catch (Exception e) {
-                    out.print("");
-                }
-            %>
-        </div>
         <jsp:include page="footer.jsp" />
     </body>
 </html>
