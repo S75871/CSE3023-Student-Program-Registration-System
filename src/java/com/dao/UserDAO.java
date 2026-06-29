@@ -131,8 +131,8 @@ public class UserDAO {
             String cleanEmail = email.trim();
             String cleanPass = password.trim();
 
-            // 1. Check Committee 
-            String sqlCmd = "SELECT committeeID, name FROM ClubCommittee WHERE email=? AND password=?";
+            // 1. Check Committee (Changed to lowercase clubcommittee)
+            String sqlCmd = "SELECT committeeID, name FROM clubcommittee WHERE email=? AND password=?";
             try (PreparedStatement ps = conn.prepareStatement(sqlCmd)) {
                 ps.setString(1, cleanEmail);
                 ps.setString(2, cleanPass);
@@ -142,8 +142,8 @@ public class UserDAO {
                 }
             }
 
-            // 2. Check Advisor 
-            String sqlAdv = "SELECT advisorID, name FROM ClubAdvisor WHERE email=? AND password=?";
+            // 2. Check Advisor (Changed to lowercase clubadvisor)
+            String sqlAdv = "SELECT advisorID, name FROM clubadvisor WHERE email=? AND password=?";
             try (PreparedStatement ps = conn.prepareStatement(sqlAdv)) {
                 ps.setString(1, cleanEmail);
                 ps.setString(2, cleanPass);
@@ -153,8 +153,8 @@ public class UserDAO {
                 }
             }
 
-            // 3. Check Member 
-            String sqlMem = "SELECT memberID, name FROM ClubMember WHERE email=? AND password=?";
+            // 3. Check Member (Changed to lowercase clubmember)
+            String sqlMem = "SELECT memberID, name FROM clubmember WHERE email=? AND password=?";
             try (PreparedStatement ps = conn.prepareStatement(sqlMem)) {
                 ps.setString(1, cleanEmail);
                 ps.setString(2, cleanPass);
@@ -165,7 +165,7 @@ public class UserDAO {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Check Render logs if it fails again!
         }
         return null;
     }
